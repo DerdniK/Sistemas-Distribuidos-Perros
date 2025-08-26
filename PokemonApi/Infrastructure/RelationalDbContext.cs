@@ -22,6 +22,7 @@ public class RelationalDbContext : DbContext
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Type).IsRequired().HasMaxLength(50);
             entity.Property(e => e.Level).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.HP).IsRequired().HasMaxLength(50);
             entity.Property(e => e.Attack).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Defense).IsRequired().HasMaxLength(50);
             entity.Property(e => e.Speed).IsRequired().HasMaxLength(50);
