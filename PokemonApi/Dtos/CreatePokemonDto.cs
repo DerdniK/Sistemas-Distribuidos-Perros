@@ -14,9 +14,6 @@ public class CreatePokemonDto
     [DataMember(Name = "Level", Order = 3)]
     public int Level { get; set; }
 
-    [DataMember(Name = "HP", Order = 4)]
-    public int HP { get; set; }
-
-    [DataMember(Name = "Stats", Order = 5)]
+    [DataMember(Name = "Stats", Order = 4)]
     public required StatsDto Stats { get; set; }
 }
