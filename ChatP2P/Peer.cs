@@ -55,9 +55,9 @@ public class Peer
     {
         try
         {
-            while (true) 
+            var stream = _tcpClient!.GetStream(); // Solicitar un hilo en el que viaja binario osea el mensaje
+            while (true)
             {
-                var stream = _tcpClient!.GetStream(); // Solicitar un hilo en el que viaja binario osea el mensaje
                 var reader = new StreamReader(stream, Encoding.UTF8); // Meter los bites en un buffer Contenedor donde guardamos informacion guardandolo en formato UTF8 que es loque convierte en string
                 var message = await reader.ReadLineAsync(); // Al detectar el final del mensaje lo guardamos en la variable ya como string
                 Console.WriteLine($"Peer message: {message}");
@@ -74,10 +74,10 @@ public class Peer
     {
         try
         {
+            var stream = _tcpClient!.GetStream();
+            var writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
             while (true)
             {
-                var stream = _tcpClient!.GetStream();
-                var writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
                 var message = Console.ReadLine();
                 await writer.WriteLineAsync(message);
             }
