@@ -7,18 +7,18 @@ USER app
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG configuration=Release
 WORKDIR /src
-COPY ["MinecraftMobs-PokemonApi.csproj","./"]
-RUN dotnet restore "MinecraftMobs-PokemonApi.csproj"
+COPY ["MinecraftMobs-Api.csproj","./"]
+RUN dotnet restore "MinecraftMobs-Api.csproj"
 COPY . .
 WORKDIR "/src/."
-RUN dotnet build "MinecraftMobs-PokemonApi.csproj" -c ${configuration} -o /app/build
+RUN dotnet build "MinecraftMobs-Api.csproj" -c ${configuration} -o /app/build
 
 FROM build AS publish
 ARG configuration=Realese
-RUN dotnet publish "MinecraftMobs-PokemonApi.csproj" -c ${configuration} -o /app/publish
+RUN dotnet publish "MinecraftMobs-Api.csproj" -c ${configuration} -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT [ "dotnet", "MinecraftMobs-PokemonApi.dll" ]
+ENTRYPOINT [ "dotnet", "MinecraftMobs-Api.dll" ]
 
