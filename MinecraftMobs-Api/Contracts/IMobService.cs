@@ -1,5 +1,6 @@
 using System.ServiceModel;
 using MinecraftMobs_Api.Dtos;
+using MinecraftMobs_Api.Models;
 
 namespace MinecraftMobs_Api.Contracts;
 
@@ -14,4 +15,7 @@ public interface IMobService
 
     [OperationContract]
     Task<MobResponseDto> GetMobByName(string name, CancellationToken cancellationToken);
+
+    [OperationContract]
+    Task<MobReponseDeleteDto> DeleteMob(Guid Id, CancellationToken cancellationToken);
 }
