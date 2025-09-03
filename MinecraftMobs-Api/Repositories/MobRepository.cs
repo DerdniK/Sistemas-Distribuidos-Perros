@@ -14,6 +14,12 @@ public class MobRepository : IMobRepository
         _context = context;
     }
 
+    public async Task DeleteMobAsync(Mob mob, CancellationToken cancellationToken)
+    {
+        _context.Mobs.Remove(mob.ToEntity());
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<Mob> CreateMobAsync(Mob mob, CancellationToken cancellationToken)
     {
         var mobToCreate = mob.ToEntity();

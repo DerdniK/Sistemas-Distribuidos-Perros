@@ -17,6 +17,18 @@ public class MobService : IMobService
     }
 
 
+    public async Task<MobReponseDeleteDto> DeleteMob(Guid Id, CancellationToken cancellationToken)
+    {
+        var mob = await _mobRepository.GetMobByIdAsync(Id, cancellationToken);
+        if (!MobExists(mob))
+        {
+            throw new FaultException("Mob not found");
+        }
+
+        await _mobRepository.DeleteMobAsync(mob, cancellationToken);
+        return new MobReponseDeleteDto { Succes = true };
+    }
+
     public async Task<MobResponseDto> GetMobById(Guid Id, CancellationToken cancellationToken)
     {
         var mob = await _mobRepository.GetMobByIdAsync(Id, cancellationToken);
@@ -43,14 +55,13 @@ public class MobService : IMobService
         return mob.ToResponseDto();
     }
 
-
-
+    private async Task<bool> MobAlreadyExists(string name, CancellationToken cancellationToken)
+    {
+        var mobs = await _mobRepository.GetMobByNameAsync(name, cancellationToken);
+        return MobExists(mobs);
+    }
+    
     private static bool MobExists(Mob mob) {
         return mob is not null;
-    }
-
-    private async Task<bool> MobAlreadyExists(string name, CancellationToken cancellationToken) {
-        var mobs = await _mobRepository.GetMobByNameAsync(name, cancellationToken);
-        return mobs is not null;
     }
 }
