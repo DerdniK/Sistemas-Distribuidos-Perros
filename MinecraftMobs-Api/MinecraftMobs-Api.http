@@ -1,0 +1,6 @@
+@MinecraftMobs_Api_HostAddress = http://localhost:5147
+
+GET {{MinecraftMobs_Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
