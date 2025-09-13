@@ -25,7 +25,8 @@ public static class PokemonMapper
             {
                 Attack = pokemonEntity.Attack,
                 Speed = pokemonEntity.Speed,
-                Defense = pokemonEntity.Defense
+                Defense = pokemonEntity.Defense,
+                HP = pokemonEntity.HP
             }
         };
     }
@@ -40,7 +41,8 @@ public static class PokemonMapper
             Name = pokemon.Name,
             Attack = pokemon.stats.Attack,
             Speed = pokemon.stats.Speed,
-            Defense = pokemon.stats.Defense
+            Defense = pokemon.stats.Defense,
+            HP = pokemon.stats.HP
         };
     }
 
@@ -56,7 +58,8 @@ public static class PokemonMapper
             {
                 Attack = pokemon.stats.Attack,
                 Speed = pokemon.stats.Speed,
-                Defense = pokemon.stats.Defense
+                Defense = pokemon.stats.Defense,
+                HP = pokemon.stats.HP
             }
         };
     }
@@ -72,7 +75,8 @@ public static class PokemonMapper
             {
                 Attack = requestPokemonDto.Stats.Attack,
                 Speed = requestPokemonDto.Stats.Speed,
-                Defense = requestPokemonDto.Stats.Defense
+                Defense = requestPokemonDto.Stats.Defense,
+                HP = requestPokemonDto.Stats.HP
             }
         };
     }
