@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://champs.com/lol_champs_api"
+           xmlns:tns="http://champs.com/lol_champs_api"
+           elementFormDefault="qualified">
+
+    <xs:complexType name="Champion">
+        <xs:sequence>
+            <xs:element name="id" type="xs:long" minOccurs="0"/>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="role" type="xs:string"/>
+            <xs:element name="difficulty" type="xs:string"/> 
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="CreateChampionRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="champion" type="tns:Champion"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="CreateChampionResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="champion" type="tns:Champion"/>
+                <xs:element name="message" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="GetChampionByIdRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="GetChampionByIdResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="champion" type="tns:Champion" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
