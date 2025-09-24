@@ -31,6 +31,7 @@ public static class PokemonMapper
         {
             Id = pokemon.Id,
             Name = pokemon.Name,
+            Type = pokemon.Type,
             Attack = pokemon.Stats.Attack
         };
     }
@@ -51,7 +52,8 @@ public static class PokemonMapper
         };
     }
 
-    public static IList<Pokemon> ToModel(this IList<PokemonResponseDto> pokemonResponseDtos) {
+    public static IList<Pokemon> ToModel(this IList<PokemonResponseDto> pokemonResponseDtos)
+    {
         return pokemonResponseDtos.Select(s => s.ToModel()).ToList();
     }
 
@@ -69,5 +71,10 @@ public static class PokemonMapper
                 Speed = pokemon.Stats.Speed
             }
         };
+    }
+
+    public static IList<PokemonResponse> ToResponse(this IList<Pokemon> pokemons)
+    {
+        return pokemons.Select(s => s.ToResponse()).ToList();
     }
 }

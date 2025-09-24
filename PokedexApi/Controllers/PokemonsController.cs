@@ -27,6 +27,22 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
         // En caso de que no existe se regresa un 404 (NotFound)
     }
 
+    // Pagination
+    // localhost:PORT/api/v1/pokemons?name=pikachu&type=fire
+    // HTTP VERB - GET
+    // 200 - OK (si existe o no pokemon(si no hay nada se regresa vacio)) 
+    // 400 - BadRequest (Si alguno de los quert parameter son incorrectos)
+    [HttpGet]
+    public async Task<ActionResult<IList<PokemonResponse>>> GetPokemonsAsync([FromQuery] string name, [FromQuery] string type, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(type))
+        {
+            return BadRequest(new { Message = "Type query parameter is required" });
+        }
+
+        var pokemons = await _pokemonService.GetPokemonsAsync(name, type, cancellationToken);
+        return Ok(pokemons.ToResponse());
+    }
 
     // localhost:port/api/v1/pokemons
     // Body request - JSON
@@ -61,6 +77,28 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
             return Conflict(new {Message = e.Message});
         }
         
+    }
+
+    //localhost:port/api/v1/pokemons/ID
+    // HTTP VERB - DELETE
+    // 204 - No Content (si se borro correctamente)
+    // 200 - Ok (Si se borro correctamente) - no sigue buenas practicas RESTFUL
+    // {"message": "pokemon borrado correctamente"} - a veces regresan un JSON como respuesta
+    // 404 - Not Found (Si el pokemon no existe)
+    // 500 - Internal server error
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeletePokemonAsync(Guid id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _pokemonService.DeletePokemonAsync(id, cancellationToken);
+            return NoContent(); // 204
+        }
+        catch (PokemonNotFoundException)
+        {
+            return NotFound(); // 404
+        }
     }
 
     private static bool IsValidAttack(CreatePokemonRequest createPokemon)
