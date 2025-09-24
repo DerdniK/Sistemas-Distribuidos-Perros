@@ -13,6 +13,12 @@ public class PokemonService : IPokemonService
     {
         _pokemonGateway = pokemonGateway;
     }
+
+    public async Task DeletePokemonAsync(Guid id, CancellationToken cancellationToken)
+    {
+        await _pokemonGateway.DeletePokemonAsync(id, cancellationToken);
+    }
+    
     public async Task<Pokemon> GetPokemonByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _pokemonGateway.GetPokemonByIdAsync(id, cancellationToken);
@@ -29,7 +35,14 @@ public class PokemonService : IPokemonService
         return await _pokemonGateway.CreatePokemonAsync(pokemon, cancellationToken);
     }
 
-    private static bool PokemonExists(IList<Pokemon> pokemons, string pokemonNameToSearch) {
+    private static bool PokemonExists(IList<Pokemon> pokemons, string pokemonNameToSearch)
+    {
         return pokemons.Any(s => s.Name.ToLower().Equals(pokemonNameToSearch.ToLower()));
+    }
+
+    public async Task<IList<Pokemon>> GetPokemonsAsync(string name, string type, CancellationToken cancellationToken)
+    {
+        var pokemons = await _pokemonGateway.GetPokemonsByNameAsync(name, cancellationToken);
+        return pokemons.Where(s => s.Type.ToLower().Contains(type.ToLower())).ToList();
     }
 }
