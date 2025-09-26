@@ -33,15 +33,24 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
     // 200 - OK (si existe o no pokemon(si no hay nada se regresa vacio)) 
     // 400 - BadRequest (Si alguno de los quert parameter son incorrectos)
     [HttpGet]
-    public async Task<ActionResult<IList<PokemonResponse>>> GetPokemonsAsync([FromQuery] string name, [FromQuery] string type, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPokemonsAsync(
+        [FromQuery] string? name,
+        [FromQuery] string? type,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string orderBy = "id",
+        [FromQuery] string orderDirection = "asc",
+        CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(type))
-        {
-            return BadRequest(new { Message = "Type query parameter is required" });
-        }
-
-        var pokemons = await _pokemonService.GetPokemonsAsync(name, type, cancellationToken);
-        return Ok(pokemons.ToResponse());
+        var response = await _pokemonService.GetPokemonsByName(
+            name ?? "",
+            type ?? "",
+            pageNumber,
+            pageSize,
+            orderBy,
+            orderDirection,
+            cancellationToken);
+        return Ok(response);
     }
 
     // localhost:port/api/v1/pokemons

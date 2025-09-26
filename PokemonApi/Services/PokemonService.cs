@@ -68,11 +68,20 @@ public class PokemonService : IPokemonServices
         return new DeletePokemonResponseDto { Succes = true };
     }
 
-    public async Task<IList<PokemonResponseDto>> GetPokemonsByName(string name, CancellationToken cancellationToken)
+    public async Task<PokemonResponse> GetPokemonsByName(string name, string type, int pageNumber, int pageSize, string orderBy, string orderDirection, CancellationToken cancellationToken)
+{
+    var (pokemons, totalRecords) = await _pokemonRepository.GetPokemonsByNameAsync(
+        name, type, pageNumber, pageSize, orderBy, orderDirection, cancellationToken);
+
+    return new PokemonResponse
     {
-        var pokemons = await _pokemonRepository.GetPokemonsByNameAsync(name, cancellationToken);
-        return pokemons.ToResponseDto();
-    }
+        PageNumber = pageNumber,
+        PageSize = pageSize,
+        // TotalRecords = totalRecords,
+        // TotalPages = (int)Math.Ceiling((double)totalRecords / pageSize),
+        Data = pokemons.ToResponseDto()
+    };
+}
 
     public async Task<PokemonResponseDto> GetPokemonById(Guid id, CancellationToken cancellationToken)
     {

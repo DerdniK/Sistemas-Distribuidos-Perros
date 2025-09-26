@@ -1,40 +1,65 @@
-using System.CodeDom;
-using Microsoft.AspNetCore.StaticAssets;
-using PokedexApi.Dtos;
-using PokedexApi.Infrastructure.Soap.Dtos;
+using System.Collections.Generic;
+using System.Linq;
+using PokedexApi.Dtos; // REST DTOs
+using PokedexApi.Infrastructure.Soap.Dtos; // SOAP DTOs
 using PokedexApi.Models;
+
+// Alias para evitar ambigüedad
+using RestPokemonResponse = PokedexApi.Dtos.PokemonResponse;
+using SoapPokemonResponseDto = PokedexApi.Infrastructure.Soap.Dtos.PokemonResponseDto;
+using SoapCreatePokemonDto = PokedexApi.Infrastructure.Soap.Dtos.CreatePokemonDto;
 
 namespace PokedexApi.Mappers;
 
 public static class PokemonMapper
 {
-    public static Pokemon ToModel(this PokemonResponseDto pokemonResposeDto)
+    public static Pokemon ToModel(this SoapPokemonResponseDto pokemonResponseDto)
     {
         return new Pokemon
         {
-            Id = pokemonResposeDto.Id,
-            Name = pokemonResposeDto.Name,
-            Type = pokemonResposeDto.Type,
-            Level = pokemonResposeDto.Level,
+            Id = pokemonResponseDto.Id,
+            Name = pokemonResponseDto.Name,
+            Type = pokemonResponseDto.Type,
+            Level = pokemonResponseDto.Level,
             Stats = new Stats
             {
-                Attack = pokemonResposeDto.Stats.Attack,
-                Defene = pokemonResposeDto.Stats.Defense,
-                Speed = pokemonResposeDto.Stats.Speed
+                Attack = pokemonResponseDto.Stats.Attack,
+                Defense = pokemonResponseDto.Stats.Defense,
+                Speed = pokemonResponseDto.Stats.Speed
             }
         };
     }
 
-    public static PokemonResponse ToResponse(this Pokemon pokemon)
+    public static PokemonResponseItem ToResponseItem(this Pokemon pokemon)
+{
+    return new PokemonResponseItem
     {
-        return new PokemonResponse
+        Name = pokemon.Name,
+        Type = pokemon.Type,
+        Level = pokemon.Level,
+        Attack = pokemon.Stats.Attack,
+        Defense = pokemon.Stats.Defense,
+        Speed = pokemon.Stats.Speed
+    };
+}
+
+
+
+    public static RestPokemonResponse ToResponse(this Pokemon pokemon)
+{
+    return new RestPokemonResponse
+    {
+        PageNumber = 1,
+        PageSize = 1,
+        TotalRecords = 1,
+        TotalPages = 1,
+        Data = new List<PokemonResponseItem>
         {
-            Id = pokemon.Id,
-            Name = pokemon.Name,
-            Type = pokemon.Type,
-            Attack = pokemon.Stats.Attack
-        };
-    }
+            pokemon.ToResponseItem()
+        }
+    };
+}
+
 
     public static Pokemon ToModel(this CreatePokemonRequest createPokemonRequest)
     {
@@ -46,20 +71,20 @@ public static class PokemonMapper
             Stats = new Stats
             {
                 Attack = createPokemonRequest.Stats.Attack,
-                Defene = createPokemonRequest.Stats.Defense,
+                Defense = createPokemonRequest.Stats.Defense,
                 Speed = createPokemonRequest.Stats.Speed
             }
         };
     }
 
-    public static IList<Pokemon> ToModel(this IList<PokemonResponseDto> pokemonResponseDtos)
+    public static IList<Pokemon> ToModel(this IList<SoapPokemonResponseDto> pokemonResponseDtos)
     {
         return pokemonResponseDtos.Select(s => s.ToModel()).ToList();
     }
 
-    public static CreatePokemonDto ToRequest(this Pokemon pokemon)
+    public static SoapCreatePokemonDto ToRequest(this Pokemon pokemon)
     {
-        return new CreatePokemonDto
+        return new SoapCreatePokemonDto
         {
             Name = pokemon.Name,
             Type = pokemon.Type,
@@ -67,13 +92,13 @@ public static class PokemonMapper
             Stats = new StatsDto
             {
                 Attack = pokemon.Stats.Attack,
-                Defense = pokemon.Stats.Defene,
+                Defense = pokemon.Stats.Defense,
                 Speed = pokemon.Stats.Speed
             }
         };
     }
 
-    public static IList<PokemonResponse> ToResponse(this IList<Pokemon> pokemons)
+    public static IList<RestPokemonResponse> ToResponse(this IList<Pokemon> pokemons)
     {
         return pokemons.Select(s => s.ToResponse()).ToList();
     }
