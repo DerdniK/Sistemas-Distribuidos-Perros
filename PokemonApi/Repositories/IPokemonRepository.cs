@@ -11,7 +11,7 @@ public interface IPokemonRepository
 
     Task<Pokemon> GetPokemonByIdAsync(Guid id, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Pokemon>> GetPokemonsByNameAsync(string name, CancellationToken cancellationToken);
+    Task<(IReadOnlyList<Pokemon> Data, int TotalRecords)> GetPokemonsByNameAsync(string name, string type, int pageNumber, int pageSize, string orderBy, string orderDirection, CancellationToken cancellationToken);
 
     Task DeletePokemonAsync(Pokemon pokemon, CancellationToken cancellationToken);
 

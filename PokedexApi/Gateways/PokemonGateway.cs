@@ -1,9 +1,9 @@
-using System.ServiceModel;
+using PokedexApi.Dtos;
 using PokedexApi.Models;
-using PokedexApi.Mappers;
 using PokedexApi.Infrastructure.Soap.Contracts;
+using PokedexApi.Mappers;
 using PokedexApi.Expections;
-
+using System.ServiceModel;
 
 namespace PokedexApi.Gateways;
 
@@ -47,11 +47,57 @@ public class PokemonGateway : IPokemonGateway
         }
     }
 
+    public async Task<PokemonResponse> GetPokemonsByNameAsync(
+        string name,
+        string type,
+        int pageNumber,
+        int pageSize,
+        string orderBy,
+        string orderDirection,
+        CancellationToken cancellationToken)
+    {
+        var allPokemons = await _pokemonContract.GetPokemonsByName(name, cancellationToken);
+
+        var filtered = allPokemons
+            .Where(p => string.IsNullOrEmpty(type) || p.Type.Contains(type, StringComparison.OrdinalIgnoreCase))
+            .Select(p => p.ToModel())
+            .ToList();
+
+        filtered = orderBy.ToLower() switch
+        {
+            "name" => orderDirection.ToLower() == "desc" ? filtered.OrderByDescending(p => p.Name).ToList() : filtered.OrderBy(p => p.Name).ToList(),
+            "type" => orderDirection.ToLower() == "desc" ? filtered.OrderByDescending(p => p.Type).ToList() : filtered.OrderBy(p => p.Type).ToList(),
+            "level" => orderDirection.ToLower() == "desc" ? filtered.OrderByDescending(p => p.Level).ToList() : filtered.OrderBy(p => p.Level).ToList(),
+            "attack" => orderDirection.ToLower() == "desc" ? filtered.OrderByDescending(p => p.Stats.Attack).ToList() : filtered.OrderBy(p => p.Stats.Attack).ToList(),
+            _ => filtered.OrderBy(p => p.Name).ToList()
+        };
+
+        var totalRecords = filtered.Count;
+        var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+        var paged = filtered.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+        var response = new PokemonResponse
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalRecords = totalRecords,
+            TotalPages = totalPages,
+            Data = paged.Select(p => new PokemonResponseItem
+            {
+                Name = p.Name,
+                Type = p.Type,
+                Level = p.Level,
+                Attack = p.Stats.Attack
+            }).ToList()
+        };
+
+        return response;
+    }
+
     public async Task<IList<Pokemon>> GetPokemonsByNameAsync(string name, CancellationToken cancellationToken)
     {
-        _logger.LogDebug(":(");
-        var pokemons = await _pokemonContract.GetPokemonsByName(name, cancellationToken);
-        return pokemons.ToModel();
+        var allPokemons = await _pokemonContract.GetPokemonsByName(name, cancellationToken);
+        return allPokemons.Select(p => p.ToModel()).ToList();
     }
 
     public async Task<Pokemon> CreatePokemonAsync(Pokemon pokemon, CancellationToken cancellationToken)
