@@ -20,6 +20,22 @@ public class PokemonGateway : IPokemonGateway
         _logger = logger;
     }
 
+    public async Task UpdatePokemonAsync(Pokemon pokemon, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _pokemonContract.UpdatePokemon(pokemon.ToUpdateRequest(), cancellationToken);
+        }
+        catch (FaultException ex) when (ex.Message == "Pokemon not found")
+        {
+
+            throw new PokemonNotFoundException(pokemon.Id);
+        }
+        catch (FaultException ex) when(ex.Message == "Pokemon with the same name already exists") {
+            throw new PokemonAlreadyExistsException(pokemon.Name);
+        }
+    }
+
     public async Task DeletePokemonAsync(Guid id, CancellationToken cancellationToken)
     {
         try
@@ -29,7 +45,7 @@ public class PokemonGateway : IPokemonGateway
         catch (FaultException ex) when (ex.Message == "Pokemon not found")
         {
             _logger.LogWarning(ex, "Pokemon not found");
-            throw new PokemonNotFoundException(id);    
+            throw new PokemonNotFoundException(id);
         }
     }
 

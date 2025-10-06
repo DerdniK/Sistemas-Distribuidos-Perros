@@ -69,7 +69,7 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
     {
         try
         {
-            if (!IsValidAttack(createPokemon))
+            if (!IsValidAttack(createPokemon.Stats.Attack))
             {
                 // {"message"} : ""
                 return BadRequest(new { Message = "Attack does not have a valid value" });
@@ -110,8 +110,67 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
         }
     }
 
-    private static bool IsValidAttack(CreatePokemonRequest createPokemon)
+    //localhost:port/api/v1/Pokemons/ID
+    // HTTP verb - PUT
+    // 204 - No Content(Orientado a restfull)
+    // 200 - Ok(Retornar la entidad actualizada)
+    // 404 - Not Found(Id no exite)
+    // 400 - Validaciones de los campos incorrectos
+    // 500 - Internal Server Error
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdatePokemonAsync(Guid id, [FromBody] UpdatePokemonRequest pokemon, CancellationToken cancellationToken)
     {
-        return createPokemon.Stats.Attack > 0;
+        try
+        {
+            if (!IsValidAttack(pokemon.Stats.Attack)) {
+                return BadRequest(new{Message = "Invalid attack value"}); //400
+            }
+
+            await _pokemonService.UpdatePokemonAsync(pokemon.ToModel(id), cancellationToken);
+            return NoContent(); // 204
+        }
+        catch (PokemonNotFoundException)
+        {
+            return NotFound(); // 404
+        }
+        catch (PokemonAlreadyExistsException ex)
+        {
+            return Conflict(new {Message = ex.Message}); // 409
+        }
+    }
+
+    //localhost:port/api/v1/Pokemons/ID
+    // HTTP Verb - Patch
+    // 200 - Ok(retronar la entidad actualizada)  -- recomendado
+    // 204 - NoContent
+    // 404 - NotFound
+    //400 - Validacion
+    //500 Internal server error
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<PokemonResponse>> PatchPokemonAsync(Guid id, [FromBody] PatchPokemonRequest pokemonRequest, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (pokemonRequest.Attack.HasValue && !IsValidAttack(pokemonRequest.Attack.Value)) {
+                return BadRequest(new{Message = "Invalid attack value"}); //400
+            }
+
+            var pokemon = await _pokemonService.PatchPokemonAsync(id, pokemonRequest.Name, pokemonRequest.Type, pokemonRequest.Attack, pokemonRequest.Defense, pokemonRequest.Speed, cancellationToken);
+            return Ok(pokemon.ToResponse()); // 204
+        }
+        catch (PokemonNotFoundException)
+        {
+            return NotFound(); // 404
+        }
+        catch (PokemonAlreadyExistsException ex)
+        {
+            return Conflict(new {Message = ex.Message}); // 409
+        }
+    }
+
+
+    private static bool IsValidAttack(int Attack)
+    {
+        return Attack > 0;
     }
 }

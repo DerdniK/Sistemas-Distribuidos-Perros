@@ -10,4 +10,5 @@ public interface IPokemonGateway
     Task<IList<Pokemon>> GetPokemonsByNameAsync(string name, CancellationToken cancellationToken);
     Task<Pokemon> CreatePokemonAsync(Pokemon pokemon, CancellationToken cancellationToken);
     Task DeletePokemonAsync(Guid id, CancellationToken cancellationToken);
+    Task UpdatePokemonAsync(Pokemon pokemon, CancellationToken cancellationToken);
 }
