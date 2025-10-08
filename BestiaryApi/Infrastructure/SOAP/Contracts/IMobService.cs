@@ -1,7 +1,8 @@
 using System.ServiceModel;
 using BestiaryApi.Infrastructure.SOAP.Dtos;
+using MinecraftMobs_Api.Dtos;
 
-namespace BestiaryApi.Infrastructure.SOAP.Contracts;
+namespace MinecraftMobs_Api.Contracts;
 
 [ServiceContract(Name = "MobService", Namespace = "http://minecraftMob-api/minecraftMob-service")]
 public interface IMobService
@@ -13,8 +14,11 @@ public interface IMobService
     Task<MobResponseDto> GetMobById(Guid Id, CancellationToken cancellationToken);
 
     [OperationContract]
-    Task<MobResponseDto> GetMobByName(string name, CancellationToken cancellationToken);
+    Task<IList<MobResponseDto>> GetMobsByBehaviour(string name, CancellationToken cancellationToken);
 
     [OperationContract]
     Task<MobReponseDeleteDto> DeleteMob(Guid Id, CancellationToken cancellationToken);
+    
+    [OperationContract]
+    Task<MobResponseDto> UpdateMob(UpdateMobDto pokemon, CancellationToken cancellationToken);
 }
