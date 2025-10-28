@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package trainerpb;
+
+option csharp_namespace = "TrainerApi";
+
+import "google/protobuf/timestamp.proto";
+
+service TrainerService{
+    rpc GetTrainerById (TrainerByIdRequest) returns (TrainerResponse); //Unarycall => Mando un paquete recibo un paquete
+    rpc GetTrainersByName(TrainersByNameRequest) returns (stream TrainerResponse); // Server Streaming => Manda una sola peticion  y el servidor manda varios paquetes (respuestas)
+    rpc CreateTrainers (stream CreateTrainerRequest) returns (CreateTrainerResponse); // Client Streaming => el cliene manda multiples paquetes y el servidor solo una respuesta
+}
+
+message TrainersByNameRequest{
+    string name = 1;
+}
+
+message CreateTrainerRequest{
+    string name = 1;
+    int32 age = 2;
+    google.protobuf.Timestamp birthdate = 3;
+    repeated Medal medals = 4;
+}
+
+message CreateTrainerResponse{
+    int32 success_count = 1;
+    repeated TrainerResponse trainers = 2;
+}
+
+message TrainerByIdRequest{
+    string id = 1;
+}
+
+message TrainerResponse{
+    string id = 1;
+    string name = 2;
+    int32 age = 3;
+    google.protobuf.Timestamp birthdate = 4;
+    google.protobuf.Timestamp created_at = 5;
+    repeated Medal medals = 6;
+}
+
+message Medal{
+    string region = 1;
+    MedalType type = 2;
+}
+
+enum MedalType{
+    UNKNOWN = 0;
+    GOLD = 1;
+    SILVER = 2;
+    BRONZE = 3;
+}
