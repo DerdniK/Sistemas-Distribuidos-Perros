@@ -70,7 +70,7 @@ public static class TrainerMapper{
         };
     }
     
-    private static MedalDocument ToDocument(this Models.Medal medal)
+    public static MedalDocument ToDocument(this Models.Medal medal)
     {
         return new MedalDocument
         {
@@ -79,7 +79,7 @@ public static class TrainerMapper{
         };
     }
 
-    private static Models.Medal ToModel(this Medal request)
+    public static Models.Medal ToModel(this Medal request)
     {
         return new Models.Medal
         {
