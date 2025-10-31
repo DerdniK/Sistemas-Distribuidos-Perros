@@ -14,6 +14,24 @@ public class MobRepository : IMobRepository
         _context = context;
     }
 
+    public async Task<IList<Mob>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        var mobs = await _context.Mobs.AsNoTracking().ToListAsync(cancellationToken);
+        return mobs.ToModel();
+    }
+
+    public async Task<Mob> GetByNameAsync(string name, CancellationToken cancellationToken)
+    {
+        var mob = await _context.Mobs.AsNoTracking().FirstOrDefaultAsync(s => s.Name.Contains(name));
+        return mob.ToModel();
+    }
+
+     public async Task UpdateMobAsync(Mob mob, CancellationToken cancellationToken)
+    {
+        _context.Mobs.Update(mob.ToEntity());
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task DeleteMobAsync(Mob mob, CancellationToken cancellationToken)
     {
         _context.Mobs.Remove(mob.ToEntity());
@@ -37,9 +55,10 @@ public class MobRepository : IMobRepository
         return mob.ToModel();
     }
 
-    public async Task<Mob> GetMobByNameAsync(string name, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Mob>> GetMobsByBehaviourAsync(string behaviour, CancellationToken cancellationToken)
     {
-        var mob = await _context.Mobs.AsNoTracking().FirstOrDefaultAsync(s => s.Name.Contains(name));
-        return mob.ToModel();
+         var mobs = await _context.Mobs.AsNoTracking().Where(s => s.Behaviour.Contains(behaviour)).ToListAsync(cancellationToken);
+
+        return mobs.ToReadOnlyModel();
     }
 }

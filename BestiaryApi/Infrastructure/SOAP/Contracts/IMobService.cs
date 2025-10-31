@@ -1,6 +1,6 @@
 using System.ServiceModel;
+using BestiaryApi.Infrastructure.SOAP.Dtos;
 using MinecraftMobs_Api.Dtos;
-using MinecraftMobs_Api.Models;
 
 namespace MinecraftMobs_Api.Contracts;
 
@@ -18,12 +18,7 @@ public interface IMobService
 
     [OperationContract]
     Task<MobReponseDeleteDto> DeleteMob(Guid Id, CancellationToken cancellationToken);
-
-    [OperationContract]
-    Task<MobResponseDto> UpdateMob(UpdateMobDto pokemon, CancellationToken cancellationToken);
     
     [OperationContract]
-    Task<PagedMobResponseDto> GetMobsPaginated(string? name, int pageNumber, int pageSize, string? orderBy, string? orderDirection, CancellationToken cancellationToken);
-
-
+    Task<MobResponseDto> UpdateMob(UpdateMobDto pokemon, CancellationToken cancellationToken);
 }
