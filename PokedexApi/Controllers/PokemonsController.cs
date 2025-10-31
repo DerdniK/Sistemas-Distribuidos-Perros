@@ -33,15 +33,24 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
     // 200 - OK (si existe o no pokemon(si no hay nada se regresa vacio)) 
     // 400 - BadRequest (Si alguno de los quert parameter son incorrectos)
     [HttpGet]
-    public async Task<ActionResult<IList<PokemonResponse>>> GetPokemonsAsync([FromQuery] string name, [FromQuery] string type, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPokemonsAsync(
+        [FromQuery] string? name,
+        [FromQuery] string? type,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string orderBy = "id",
+        [FromQuery] string orderDirection = "asc",
+        CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(type))
-        {
-            return BadRequest(new { Message = "Type query parameter is required" });
-        }
-
-        var pokemons = await _pokemonService.GetPokemonsAsync(name, type, cancellationToken);
-        return Ok(pokemons.ToResponse());
+        var response = await _pokemonService.GetPokemonsByName(
+            name ?? "",
+            type ?? "",
+            pageNumber,
+            pageSize,
+            orderBy,
+            orderDirection,
+            cancellationToken);
+        return Ok(response);
     }
 
     // localhost:port/api/v1/pokemons
@@ -60,7 +69,7 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
     {
         try
         {
-            if (!IsValidAttack(createPokemon))
+            if (!IsValidAttack(createPokemon.Stats.Attack))
             {
                 // {"message"} : ""
                 return BadRequest(new { Message = "Attack does not have a valid value" });
@@ -101,8 +110,67 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
         }
     }
 
-    private static bool IsValidAttack(CreatePokemonRequest createPokemon)
+    //localhost:port/api/v1/Pokemons/ID
+    // HTTP verb - PUT
+    // 204 - No Content(Orientado a restfull)
+    // 200 - Ok(Retornar la entidad actualizada)
+    // 404 - Not Found(Id no exite)
+    // 400 - Validaciones de los campos incorrectos
+    // 500 - Internal Server Error
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdatePokemonAsync(Guid id, [FromBody] UpdatePokemonRequest pokemon, CancellationToken cancellationToken)
     {
-        return createPokemon.Stats.Attack > 0;
+        try
+        {
+            if (!IsValidAttack(pokemon.Stats.Attack)) {
+                return BadRequest(new{Message = "Invalid attack value"}); //400
+            }
+
+            await _pokemonService.UpdatePokemonAsync(pokemon.ToModel(id), cancellationToken);
+            return NoContent(); // 204
+        }
+        catch (PokemonNotFoundException)
+        {
+            return NotFound(); // 404
+        }
+        catch (PokemonAlreadyExistsException ex)
+        {
+            return Conflict(new {Message = ex.Message}); // 409
+        }
+    }
+
+    //localhost:port/api/v1/Pokemons/ID
+    // HTTP Verb - Patch
+    // 200 - Ok(retronar la entidad actualizada)  -- recomendado
+    // 204 - NoContent
+    // 404 - NotFound
+    //400 - Validacion
+    //500 Internal server error
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<PokemonResponse>> PatchPokemonAsync(Guid id, [FromBody] PatchPokemonRequest pokemonRequest, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (pokemonRequest.Attack.HasValue && !IsValidAttack(pokemonRequest.Attack.Value)) {
+                return BadRequest(new{Message = "Invalid attack value"}); //400
+            }
+
+            var pokemon = await _pokemonService.PatchPokemonAsync(id, pokemonRequest.Name, pokemonRequest.Type, pokemonRequest.Attack, pokemonRequest.Defense, pokemonRequest.Speed, cancellationToken);
+            return Ok(pokemon.ToResponse()); // 204
+        }
+        catch (PokemonNotFoundException)
+        {
+            return NotFound(); // 404
+        }
+        catch (PokemonAlreadyExistsException ex)
+        {
+            return Conflict(new {Message = ex.Message}); // 409
+        }
+    }
+
+
+    private static bool IsValidAttack(int Attack)
+    {
+        return Attack > 0;
     }
 }

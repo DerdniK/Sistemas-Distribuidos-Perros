@@ -13,7 +13,7 @@ public interface IPokemonServices
     Task<PokemonResponseDto> GetPokemonById(Guid id, CancellationToken cancellationToken);
 
     [OperationContract]
-    Task<IList<PokemonResponseDto>> GetPokemonsByName(string name, CancellationToken cancellationToken);
+    Task<PokemonResponse> GetPokemonsByName(string name, string type, int pageNumber, int pageSize, string orderBy, string orderDirection, CancellationToken cancellationToken);
 
     [OperationContract]
     Task<DeletePokemonResponseDto> DeletePokemon(Guid id, CancellationToken cancellationToken);

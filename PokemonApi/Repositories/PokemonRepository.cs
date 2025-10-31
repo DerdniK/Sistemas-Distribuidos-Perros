@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PokemonApi.Infrastructure;
 using PokemonApi.Models;
 using PokemonApi.Mappers;
+using System.Linq.Dynamic.Core;
 
 namespace PokemonApi.Repositories;
 
@@ -26,12 +27,36 @@ public class PokemonRepository : IPokemonRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Pokemon>> GetPokemonsByNameAsync(string name, CancellationToken cancellationToken)
-    {
-        var pokemons = await _context.Pokemons.AsNoTracking().Where(s => s.Name.Contains(name)).ToListAsync(cancellationToken);
+    public async Task<(IReadOnlyList<Pokemon> Data, int TotalRecords)> GetPokemonsByNameAsync(string name, string type, int pageNumber, int pageSize, string orderBy, string orderDirection, CancellationToken cancellationToken)
+{
+    var query = _context.Pokemons.AsNoTracking().AsQueryable();
 
-        return pokemons.ToModel();
-    }
+    if (!string.IsNullOrWhiteSpace(name))
+        query = query.Where(p => p.Name.Contains(name));
+
+    if (!string.IsNullOrWhiteSpace(type))
+        query = query.Where(p => p.Type == type);
+
+    var totalRecords = await query.CountAsync(cancellationToken);
+
+    query = (orderBy?.ToLower(), orderDirection?.ToLower()) switch
+    {
+        ("name", "desc") => query.OrderByDescending(p => p.Name),
+        ("name", _) => query.OrderBy(p => p.Name),
+
+        ("id", "desc") => query.OrderByDescending(p => p.Id),
+        ("id", _) => query.OrderBy(p => p.Id),
+
+        _ => query.OrderBy(p => p.Id) // default
+    };
+
+    var data = await query
+        .Skip((pageNumber - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync(cancellationToken);
+
+    return (data.ToModel(), totalRecords);
+}
 
     public async Task<Pokemon> GetPokemonByIdAsync(Guid id, CancellationToken cancellationToken)
     {
