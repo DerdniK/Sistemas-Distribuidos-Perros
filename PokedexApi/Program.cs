@@ -4,6 +4,9 @@ using Microsoft.IdentityModel.Tokens;
 using PokedexApi.Infrastructure.Soap.Contracts;
 using PokedexApi.Services;
 using PokedexApi.Gateways;
+using Grpc.Net.Client;
+using PokedexApi.Infrastructure.Grpc;
+using TrainerService = PokedexApi.Services.TrainerService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,14 @@ builder.Services.AddSwaggerGen(); // Va a generar de manera dinamica la document
 builder.Services.AddControllers();
 builder.Services.AddScoped<IPokemonService, PokemonService>();
 builder.Services.AddScoped<IPokemonGateway, PokemonGateway>();
+builder.Services.AddScoped<ITrainerGateway, TrainerGateway>();
+builder.Services.AddScoped<ITrainerService, TrainerService>();
+
+builder.Services.AddSingleton(services =>
+{
+    var channel = GrpcChannel.ForAddress(builder.Configuration.GetValue<string>("TrainerApiEndpoint"));
+    return new PokedexApi.Infrastructure.Grpc.TrainerService.TrainerServiceClient(channel);
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
