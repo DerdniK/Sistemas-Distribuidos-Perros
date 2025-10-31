@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PokedexApi.Dtos;
 using PokedexApi.Expections;
@@ -19,6 +20,7 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
 
     // localhost:PORT/api/v1/pokemons/ID(<- Es el ID del recurso)
     [HttpGet("{id}", Name = "GetPokemonByIdAsync")] // Es un endopoint del controlador y escucha un metodo Get, {id} es el recurso que va a viajar en la peticion
+    [Authorize(Policy = "Read")] // Solo a este endpoint le va a solicitar token
     public async Task<ActionResult<PokemonResponse>> GetPokemonByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var pokemon = await _pokemonService.GetPokemonByIdAsync(id, cancellationToken);
@@ -33,6 +35,7 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
     // 200 - OK (si existe o no pokemon(si no hay nada se regresa vacio)) 
     // 400 - BadRequest (Si alguno de los quert parameter son incorrectos)
     [HttpGet]
+    [Authorize(Policy = "Read")]
     public async Task<IActionResult> GetPokemonsAsync(
         [FromQuery] string? name,
         [FromQuery] string? type,
@@ -65,6 +68,7 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
     // 201 - Created (Recurso creado + id) -- Response header retorna un href donde referencia al GET para obtener el recurso
     // 202 - Accepted (Procesamiento async)
     [HttpPost]
+    [Authorize(Policy = "Write")]
     public async Task<ActionResult<PokemonResponse>> CreatePokemonAsync([FromBody] CreatePokemonRequest createPokemon, CancellationToken cancellationToken)
     {
         try
@@ -97,6 +101,7 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
     // 500 - Internal server error
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "Write")]
     public async Task<ActionResult> DeletePokemonAsync(Guid id, CancellationToken cancellationToken)
     {
         try
@@ -118,6 +123,7 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
     // 400 - Validaciones de los campos incorrectos
     // 500 - Internal Server Error
     [HttpPut("{id}")]
+    [Authorize(Policy = "Write")]
     public async Task<ActionResult> UpdatePokemonAsync(Guid id, [FromBody] UpdatePokemonRequest pokemon, CancellationToken cancellationToken)
     {
         try
@@ -147,6 +153,7 @@ public class PokemonsController : ControllerBase // Nos va a dar status code ver
     //400 - Validacion
     //500 Internal server error
     [HttpPatch("{id}")]
+    [Authorize(Policy = "Write")]
     public async Task<ActionResult<PokemonResponse>> PatchPokemonAsync(Guid id, [FromBody] PatchPokemonRequest pokemonRequest, CancellationToken cancellationToken)
     {
         try
