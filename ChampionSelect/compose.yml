@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # 1. Base de Datos
-  lolchamps-mysql:    # Cambiado de mysql a lolchamps-mysql
+  lolchamps-mysql:
     image: mysql:8.0
     container_name: lolchamps-mysql-db
     environment:
@@ -41,7 +41,7 @@ services:
       dockerfile: Dockerfile
     container_name: soap-service
     environment:
-      - MYSQL_HOST=lolchamps-mysql    # Actualizado para coincidir con el nombre del servicio
+      - MYSQL_HOST=lolchamps-mysql
       - MYSQL_USER=root
       - MYSQL_PASSWORD=password123
     ports:
@@ -59,7 +59,7 @@ services:
       dockerfile: Dockerfile
     container_name: rest-service
     environment:
-      - MYSQL_HOST=lolchamps-mysql    # Actualizado para coincidir con el nombre del servicio
+      - MYSQL_HOST=lolchamps-mysql
       - MYSQL_USER=root
       - MYSQL_PASSWORD=password123
       - REDIS_HOST=redis

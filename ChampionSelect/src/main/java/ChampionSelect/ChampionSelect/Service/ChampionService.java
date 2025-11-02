@@ -45,16 +45,11 @@ public class ChampionService {
             throw new ConflictException("Ya existe un campeón con ese nombre");
         }
         
-        // Primero guardar en la base de datos local
         Champion savedChampion = championRepository.save(newChampion);
         
-        // Luego sincronizar con SOAP
         try {
             soapClient.createChampion(savedChampion);
         } catch (Exception e) {
-            // Si falla el SOAP, seguimos con la operación local
-            // pero registramos el error
-            // TODO: Implementar log de errores
         }
         
         return savedChampion;
@@ -77,8 +72,6 @@ public class ChampionService {
             try {
                 soapClient.updateChampion(id, updatedChampion);
             } catch (Exception e) {
-                // Manejar error de SOAP
-                // TODO: Implementar log de errores
             }
             
             return updatedChampion;
@@ -108,8 +101,6 @@ public class ChampionService {
             try {
                 soapClient.updateChampion(id, patchedChampion);
             } catch (Exception e) {
-                // Manejar error de SOAP
-                // TODO: Implementar log de errores
             }
             
             return patchedChampion;
@@ -128,8 +119,6 @@ public class ChampionService {
             try {
                 soapClient.deleteChampion(id);
             } catch (Exception e) {
-                // Manejar error de SOAP
-                // TODO: Implementar log de errores
             }
             
             return true;

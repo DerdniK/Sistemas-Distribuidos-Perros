@@ -12,7 +12,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-    // 1. Maneja errores de validación (@Valid) -> 400 Bad Request
+    // 1.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(
             MethodArgumentNotValidException ex) {
@@ -24,7 +24,7 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
     
-    // 2. Maneja excepciones de Conflicto -> 409 Conflict
+    // 2.
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<Map<String, String>> handleConflict(ConflictException ex) {
         Map<String, String> response = new HashMap<>();
@@ -32,7 +32,7 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
-    // 3. Maneja fallos de dependencia (SOAP) -> 424 Failed Dependency
+    // 3.
     @ExceptionHandler(SoapClientException.class)
     public ResponseEntity<Map<String, String>> handleSoapClient(SoapClientException ex) {
         Map<String, String> response = new HashMap<>();

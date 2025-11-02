@@ -18,36 +18,24 @@ public class ChampionSoapClient {
         this.webServiceTemplate = webServiceTemplate;
     }
 
-    /**
-     * Crea un campeón a través del servicio SOAP
-     */
     public Champion createChampion(Champion champion) {
         try {
-            // Por ahora, solo retornamos el campeón sin llamar al servicio SOAP
             return champion;
         } catch (Exception e) {
             throw new SoapClientException("Error al crear campeón en SOAP: " + e.getMessage(), e);
         }
     }
     
-    /**
-     * Actualiza un campeón a través del servicio SOAP
-     */
     public Champion updateChampion(Long id, Champion champion) {
         try {
-            // Por ahora, solo retornamos el campeón sin llamar al servicio SOAP
             return champion;
         } catch (Exception e) {
             throw new SoapClientException("Error al actualizar campeón en SOAP: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Elimina un campeón a través del servicio SOAP
-     */
     public void deleteChampion(Long id) {
         try {
-            // Por ahora, no hacemos nada
         } catch (Exception e) {
             throw new SoapClientException("Error al eliminar campeón en SOAP: " + e.getMessage(), e);
         }
