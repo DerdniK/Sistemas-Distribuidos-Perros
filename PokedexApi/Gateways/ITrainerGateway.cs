@@ -7,5 +7,5 @@ public interface ITrainerGateway
     IAsyncEnumerable<Trainer> GetTrainersByName(string name, CancellationToken cancellationToken);
     // Task DeleteTrainer(string id, CancellationToken cancellationToken);
     // Task UpdateTrainer(Trainer trainer, CancellationToken cancellationToken);
-    // Task<(int SuccessCount, IList<Trainer> CreatedTrainers)> CreateTrainer(List<Trainer> trainers, CancellationToken cancellationToken);
+    Task<(int SuccessCount, IList<Trainer> CreatedTrainers)> CreateTrainersAsync(IEnumerable<Trainer> trainers, CancellationToken cancellationToken);
 }

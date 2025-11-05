@@ -46,6 +46,34 @@ public class TrainerController : ControllerBase
         }
     }
 
+    [HttpPost]
+    public async Task<IActionResult> CreateTrainers([FromBody] List<CreateTrainerRequestDto> request, CancellationToken cancellationToken)
+    {
+        var trainers = ToModel(request);
+        var (successCount, createdTrainers) = await _TrainerService.CreateTrainersAsync(trainers, cancellationToken);
+        return Ok(new
+        {
+            SuccessCount = successCount,
+            CreatedTrainers = ToDto(createdTrainers)
+        });
+    }
+    
+    private static IEnumerable<Trainer> ToModel(List<CreateTrainerRequestDto> trainers)
+    {
+        return trainers.Select(s => new Trainer
+        {
+            Name = s.Name,
+            Age = s.Age,
+            Birthdate = s.Birthdate,
+            Medals = s.Medals.Select(m => new Medal
+            {
+                Region = m.Region,
+                Type = Enum.Parse<Models.MedalType>(m.Type)
+            }
+            ).ToList()
+        }).ToList();
+    }
+
     private static IEnumerable<TrainerResponseDto> ToDto(IEnumerable<Trainer> trainers)
     {
         return trainers.Select(ToDto).ToList();
