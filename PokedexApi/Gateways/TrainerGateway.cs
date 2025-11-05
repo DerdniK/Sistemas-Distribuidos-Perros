@@ -1,3 +1,4 @@
+using Google.Protobuf.Collections;
 using PokedexApi.Exceptions;
 using PokedexApi.Infrastructure.Grpc;
 using PokedexApi.Models;
@@ -17,13 +18,53 @@ public class TrainerGateway : ITrainerGateway
     {
         try
         {
-            var trainer =  await _client.GetTrainerByIdAsync(new TrainerByIdRequest { Id = id }, cancellationToken: cancellationToken);
+            var trainer = await _client.GetTrainerByIdAsync(new TrainerByIdRequest { Id = id }, cancellationToken: cancellationToken);
             return ToModel(trainer);
         }
         catch (Grpc.Core.RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
         {
             throw new TrainerNotFoundException(id);
         }
+    }
+
+    public async Task<(int, IList<Trainer>)> CreateTrainersAsync(IEnumerable<Trainer> trainers, CancellationToken cancellationToken)
+    {
+        using var call = _client.CreateTrainers(cancellationToken: cancellationToken);
+        foreach (var trainer in trainers)
+        {
+            var request = new CreateTrainerRequest
+            {
+                Name = trainer.Name,
+                Age = trainer.Age,
+                Birthdate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(trainer.Birthdate),
+                Medals = { trainer.Medals.Select(m => new Infrastructure.Grpc.Medal
+                {
+                    Region = m.Region,
+                    Type = (Infrastructure.Grpc.MedalType) m.Type
+                }) }
+
+            };
+            await call.RequestStream.WriteAsync(request, cancellationToken);
+            await Task.Delay(1000, cancellationToken); // 1 sec
+        }
+        await call.RequestStream.CompleteAsync();
+        var response = await call;
+        return (response.SuccessCount,  ToModel(response.Trainers));
+    }
+
+    public async IAsyncEnumerable<Trainer> GetTrainersByName(string name, CancellationToken cancellationToken)
+    {
+        var request = new TrainersByNameRequest { Name = name };
+        using var call = _client.GetTrainersByName(request, cancellationToken: cancellationToken);
+        while (await call.ResponseStream.MoveNext(cancellationToken))
+        {
+            yield return ToModel(call.ResponseStream.Current);
+        }
+    }
+    
+    private static IList<Trainer> ToModel(RepeatedField<TrainerResponse> trainerResponses)
+    {
+        return trainerResponses.Select(ToModel).ToList();
     }
 
 
