@@ -17,12 +17,22 @@ public class TrainerGateway : ITrainerGateway
     {
         try
         {
-            var trainer =  await _client.GetTrainerByIdAsync(new TrainerByIdRequest { Id = id }, cancellationToken: cancellationToken);
+            var trainer = await _client.GetTrainerByIdAsync(new TrainerByIdRequest { Id = id }, cancellationToken: cancellationToken);
             return ToModel(trainer);
         }
         catch (Grpc.Core.RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.NotFound)
         {
             throw new TrainerNotFoundException(id);
+        }
+    }
+    
+    public async IAsyncEnumerable<Trainer> GetTrainersByName(string name, CancellationToken cancellationToken)
+    {
+        var request = new TrainersByNameRequest { Name = name };
+        using var call = _client.GetTrainersByName(request, cancellationToken: cancellationToken);
+        while (await call.ResponseStream.MoveNext(cancellationToken))
+        {
+            yield return ToModel(call.ResponseStream.Current);
         }
     }
 

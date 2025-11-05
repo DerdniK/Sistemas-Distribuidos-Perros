@@ -17,7 +17,7 @@ public class TrainerController : ControllerBase
     {
         _TrainerService = trainerService;
     }
-    
+
     [HttpGet("{id}")]
     public async Task<ActionResult<TrainerResponseDto>> GetTrainerByIdAsync(string id, CancellationToken cancellationToken)
     {
@@ -30,6 +30,25 @@ public class TrainerController : ControllerBase
         {
             return NotFound();
         }
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TrainerResponseDto>>> GetTrainers([FromQuery] string name, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var trainers = await _TrainerService.GetAllByNameAsync(name, cancellationToken);
+            return Ok(ToDto(trainers));
+        }
+        catch (TrainerNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    private static IEnumerable<TrainerResponseDto> ToDto(IEnumerable<Trainer> trainers)
+    {
+        return trainers.Select(ToDto).ToList();
     }
 
     private static TrainerResponseDto ToDto(Trainer trainer)
