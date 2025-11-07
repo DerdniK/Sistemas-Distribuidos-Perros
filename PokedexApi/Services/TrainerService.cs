@@ -12,6 +12,16 @@ public class TrainerService : ITrainerService
         _trainerGateway = trainerGateway;
     }
 
+    public async Task DeleteTrainerAsync(string id, CancellationToken cancellationToken)
+    {
+        await _trainerGateway.DeleteTrainerAsync(id, cancellationToken);
+    }
+
+    public async Task UpdateTrainerAsync(Trainer trainer, CancellationToken cancellationToken)
+    {
+        await _trainerGateway.UpdateTrainerAsync(trainer, cancellationToken);
+    }
+
     public async Task<Trainer> GetByIdAsync(string id, CancellationToken cancellationToken)
     {
         return await _trainerGateway.GetTrainerById(id, cancellationToken);

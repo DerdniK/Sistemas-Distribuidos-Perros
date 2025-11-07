@@ -57,6 +57,66 @@ public class TrainerController : ControllerBase
             CreatedTrainers = ToDto(createdTrainers)
         });
     }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteTrainer(string id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _TrainerService.DeleteTrainerAsync(id, cancellationToken);
+            return NoContent();
+        }
+        catch (TrainerNotFoundException ex)
+        {
+            return NotFound(new { Message = ex.Message });
+        }
+        catch (TrainerInvalidIdException ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateTrainer(string id,
+    [FromBody] UpdateTrainerRequestDto request,
+    CancellationToken cancellationToken)
+    {
+        try
+        {
+            var trainer = ToModel(id, request);
+            await _TrainerService.UpdateTrainerAsync(trainer, cancellationToken);
+            return NoContent();
+        }
+        catch (TrainerNotFoundException ex)
+        {
+            return NotFound(new { Message = ex.Message });
+        }
+        catch (TrainerValidationException ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+        catch (TrainerAlreadyExistsException ex)
+        {
+            return Conflict(new { Message = ex.Message });
+        }
+    }
+
+    private static Trainer ToModel(string id, UpdateTrainerRequestDto request)
+    {
+        return new Trainer
+        {
+            Id = id,
+            Name = request.Name,
+            Age = request.Age,
+            Birthdate = request.Birthdate,
+            Medals = request.Medals.Select(m => new Medal
+            {
+                Region = m.Region,
+                Type = Enum.Parse<Models.MedalType>(m.Type)
+            }
+            ).ToList()
+        };
+    }
     
     private static IEnumerable<Trainer> ToModel(List<CreateTrainerRequestDto> trainers)
     {
