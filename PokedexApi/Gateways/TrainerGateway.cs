@@ -1,4 +1,5 @@
 using Google.Protobuf.Collections;
+using Grpc.Core;
 using PokedexApi.Exceptions;
 using PokedexApi.Infrastructure.Grpc;
 using PokedexApi.Models;
@@ -12,6 +13,56 @@ public class TrainerGateway : ITrainerGateway
     public TrainerGateway(TrainerService.TrainerServiceClient client)
     {
         _client = client;
+    }
+
+    public async Task UpdateTrainerAsync(Trainer trainer, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var request = new UpdateTrainerRequest
+            {
+                Id = trainer.Id,
+                Name = trainer.Name,
+                Age = trainer.Age,
+                Birthdate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(trainer.Birthdate.ToUniversalTime()),
+                Medals = { trainer.Medals.Select(m => new Infrastructure.Grpc.Medal
+                {
+                    Region = m.Region,
+                    Type = (Infrastructure.Grpc.MedalType)m.Type
+                }) }
+            };
+
+            await _client.UpdateTrainerAsync(request, cancellationToken: cancellationToken);
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            throw new TrainerNotFoundException(trainer.Id);
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.AlreadyExists)
+        {
+            throw new TrainerAlreadyExistsException(trainer.Name);
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.InvalidArgument)
+        {
+            throw new TrainerValidationException(ex.Status.Detail);
+        }
+    }
+
+    public async Task DeleteTrainerAsync(string id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _client.DeleteTrainerAsync(new TrainerByIdRequest { Id = id },
+             cancellationToken: cancellationToken);
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
+        {
+            throw new TrainerNotFoundException(id);
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.InvalidArgument)
+        {
+            throw new TrainerInvalidIdException(id);
+        }
     }
 
     public async Task<Trainer> GetTrainerById(string id, CancellationToken cancellationToken)

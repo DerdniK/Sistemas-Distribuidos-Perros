@@ -5,11 +5,22 @@ package trainerpb;
 option csharp_namespace = "PokedexApi.Infrastructure.Grpc";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 service TrainerService{
     rpc GetTrainerById (TrainerByIdRequest) returns (TrainerResponse); //Unarycall => Mando un paquete recibo un paquete
     rpc GetTrainersByName(TrainersByNameRequest) returns (stream TrainerResponse); // Server Streaming => Manda una sola peticion  y el servidor manda varios paquetes (respuestas)
     rpc CreateTrainers (stream CreateTrainerRequest) returns (CreateTrainerResponse); // Client Streaming => el cliene manda multiples paquetes y el servidor solo una respuesta
+    rpc DeleteTrainer (TrainerByIdRequest) returns (google.protobuf.Empty); // Unarycall con un response Empty
+    rpc UpdateTrainer (UpdateTrainerRequest) returns (google.protobuf.Empty); // Unarycall con un response Empty
+}
+
+message UpdateTrainerRequest{
+    string id = 1;
+    string name = 2;
+    int32 age = 3;
+    google.protobuf.Timestamp birthdate = 4;
+    repeated Medal medals = 5;
 }
 
 message TrainersByNameRequest{
