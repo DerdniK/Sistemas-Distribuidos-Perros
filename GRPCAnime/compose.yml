@@ -1,0 +1,26 @@
+services:
+  anime-api:
+    build: 
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - "8083:8080"
+    environment:
+      COUCHBASE__ConnectionString: couchbase://couchbase
+      COUCHBASE__Username: admin
+      COUCHBASE__Password: password
+      COUCHBASE__BucketName: Animes
+    depends_on:
+      - couchbase
+
+  couchbase:
+    image: couchbase:latest
+    container_name: couchbase
+    ports:
+      - "8091:8091"
+      - "11210:11210"
+    volumes:
+      - couchbase_data:/opt/couchbase/var
+      
+volumes:
+  couchbase_data:

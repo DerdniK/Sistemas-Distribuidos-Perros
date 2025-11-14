@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package grpcanime;
+
+option csharp_namespace = "GRPCAnime";
+
+import "google/protobuf/timestamp.proto";
+
+service AnimeService{
+    rpc CreateAnime (stream CreateAnimeRequest) returns (CreateAnimeResponse);
+    // Client Stream, el cliente mandar varios paquetes y el servidor responde con uno
+}
+
+message CreateAnimeRequest{
+    string name = 1;
+    string author = 2;
+    string genre = 3;
+    google.protobuf.Timestamp first_broadcast = 4;
+    google.protobuf.Timestamp last_broadcast = 5;
+    bool has_Manga = 6;
+}
+
+message CreateAnimeResponse{
+    int32 success_count = 1;
+    repeated AnimeResponse animes = 2;
+}
+
+message AnimeResponse{
+    string id = 1;
+    string name = 2;
+    string author = 3;
+    string genre = 4;
+    google.protobuf.Timestamp last_broadcast = 5;
+}
