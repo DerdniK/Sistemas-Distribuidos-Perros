@@ -1,12 +1,9 @@
+namespace BestiaryApi.Dtos;
 
-namespace BestiaryApi.Models;
-
-public class Mob
+public class CreateMobRequest
 {
-    public Guid Id { get; set; }
     public string Name { get; set; }
     public string Variant { get; set; }
     public string Behaviour { get; set; }
-    public Stats Stats { get; set; }
+    public StatsRequest Stats { get; set; }
 }
-
