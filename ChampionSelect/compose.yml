@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # 1. Base de Datos
+  lolchamps-mysql:
+    image: mysql:8.0
+    container_name: lolchamps-mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: League_of_Legends_DB
+    ports:
+      - "3306:3306"
+    networks:
+      - champion-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ppassword123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # 2. Servicio Redis
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - champion-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 3. Servicio SOAP
+  soap-service:
+    build:
+      context: ../Lol-Champs-Api
+      dockerfile: Dockerfile
+    container_name: soap-service
+    environment:
+      - MYSQL_HOST=lolchamps-mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password123
+    ports:
+      - "8080:8080"
+    networks:
+      - champion-network
+    depends_on:
+      lolchamps-mysql:
+        condition: service_healthy
+
+  # 4. REST API
+  rest-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rest-service
+    environment:
+      - MYSQL_HOST=lolchamps-mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password123
+      - REDIS_HOST=redis
+      - SOAP_URL=http://soap-service:8080/ws
+    ports:
+      - "8081:8081"
+    networks:
+      - champion-network
+    depends_on:
+      lolchamps-mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      soap-service:
+        condition: service_started
+
+networks:
+  champion-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local

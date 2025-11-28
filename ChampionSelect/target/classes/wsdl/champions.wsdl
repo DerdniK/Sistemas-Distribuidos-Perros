@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:tns="http://champs.com/lol_champs_api"
+                  targetNamespace="http://champs.com/lol_champs_api">
+    
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="http://champs.com/lol_champs_api">
+            
+            <!-- Champion Type -->
+            <xs:complexType name="champion">
+                <xs:sequence>
+                    <xs:element name="id" type="xs:long" minOccurs="0"/>
+                    <xs:element name="name" type="xs:string"/>
+                    <xs:element name="role" type="xs:string"/>
+                    <xs:element name="difficulty" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- Create Champion -->
+            <xs:element name="createChampionRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="champion" type="tns:champion"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:element name="createChampionResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="champion" type="tns:champion"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Get Champion -->
+            <xs:element name="getChampionRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="id" type="xs:long"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:element name="getChampionResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="champion" type="tns:champion"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+
+    <!-- Messages -->
+    <wsdl:message name="createChampionRequest">
+        <wsdl:part name="parameters" element="tns:createChampionRequest"/>
+    </wsdl:message>
+    <wsdl:message name="createChampionResponse">
+        <wsdl:part name="parameters" element="tns:createChampionResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getChampionRequest">
+        <wsdl:part name="parameters" element="tns:getChampionRequest"/>
+    </wsdl:message>
+    <wsdl:message name="getChampionResponse">
+        <wsdl:part name="parameters" element="tns:getChampionResponse"/>
+    </wsdl:message>
+
+    <!-- Port Type -->
+    <wsdl:portType name="ChampionsPort">
+        <wsdl:operation name="createChampion">
+            <wsdl:input message="tns:createChampionRequest"/>
+            <wsdl:output message="tns:createChampionResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getChampion">
+            <wsdl:input message="tns:getChampionRequest"/>
+            <wsdl:output message="tns:getChampionResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <!-- Binding -->
+    <wsdl:binding name="ChampionsPortSoap11" type="tns:ChampionsPort">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="createChampion">
+            <soap:operation soapAction=""/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getChampion">
+            <soap:operation soapAction=""/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <!-- Service -->
+    <wsdl:service name="ChampionsPortService">
+        <wsdl:port name="ChampionsPortSoap11" binding="tns:ChampionsPortSoap11">
+            <soap:address location="http://localhost:8080/ws"/>
+        </wsdl:port>
+    </wsdl:service>
+
+</wsdl:definitions>

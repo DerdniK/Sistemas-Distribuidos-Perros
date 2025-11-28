@@ -1,0 +1,10 @@
+com\Champs\Lol_Champs_Api\Entities\Champion.class
+com\Champs\Lol_Champs_Api\Endpoint\ChampionEndpoint.class
+com\Champs\Lol_Champs_Api\Endpoint\CreateChampionRequest.class
+com\Champs\Lol_Champs_Api\Endpoint\GetChampionByIdResponse.class
+com\Champs\Lol_Champs_Api\Endpoint\CreateChampionResponse.class
+com\Champs\Lol_Champs_Api\Service\ChampionService.class
+com\Champs\Lol_Champs_Api\Config\WebServiceConfig.class
+com\Champs\Lol_Champs_Api\Endpoint\GetChampionByIdRequest.class
+com\Champs\Lol_Champs_Api\LolChampsApiApplication.class
+com\Champs\Lol_Champs_Api\Repository\ChampionRepository.class
