@@ -1,0 +1,6 @@
+@BestiaryApi_HostAddress = http://localhost:5248
+
+GET {{BestiaryApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
