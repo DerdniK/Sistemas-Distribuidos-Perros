@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package servicio;
+
+option go_package = "./proto";
+
+service EvokerService {
+  // 1. UNARY: Buscar un invocador por ID
+  // Si no existe, devuelve error NOT_FOUND
+  rpc GetEvokerById (EvokerByIdRequest) returns (EvokerResponse);
+
+  // 2. SERVER STREAMING: Buscar invocadores por nombre
+  // El cliente manda "e" y el server responde un flujo con todos los invocadores que tengan "e" que encuentre
+  rpc GetEvokersByName (EvokersByNameRequest) returns (stream EvokerResponse);
+
+  // 3. CLIENT STREAMING: Crear invocadores masivamente
+  // El cliente manda un flujo de datos, el servidor los guarda y al final dice cuántos guardó
+  rpc CreateEvokers (stream CreateEvokerRequest) returns (CreateEvokersResponse);
+}
+
+
+// Mensaje de respuesta 
+message EvokerResponse {
+  int32 id = 1;
+  string name = 2;
+  int32 level = 3;
+}
+
+// Unary
+message EvokerByIdRequest {
+  int32 id = 1;
+}
+
+// Server Streaming
+message EvokersByNameRequest {
+  string name = 1; // Ej. Buscar todos los que contengan "e"
+}
+
+// Client Streaming 
+message CreateEvokerRequest {
+  string name = 1; // Validar: No vacío
+  int32 level = 2; // Validar: >= 0
+}
+
+// Respuesta Client Streaming
+message CreateEvokersResponse {
+  int32 evokers_count = 1; // Cuántos se crearon con éxito
+  string message = 2;
+}
