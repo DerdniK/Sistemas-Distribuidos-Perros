@@ -1,7 +1,9 @@
 version: '3.8'
 
 services:
-  # 1. Base de Datos
+  # ----------------------------------------
+  # 1. BASE DE DATOS (MySQL para SOAP)
+  # ----------------------------------------
   lolchamps-mysql:
     image: mysql:8.0
     container_name: lolchamps-mysql-db
@@ -20,7 +22,9 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
-  # 2. Servicio Redis
+  # ----------------------------------------
+  # 2. CACHE (Redis)
+  # ----------------------------------------
   redis:
     image: redis:7-alpine
     container_name: redis-cache
@@ -34,10 +38,12 @@ services:
       timeout: 5s
       retries: 5
 
-  # 3. Servicio SOAP
+  # ----------------------------------------
+  # 3. API SOAP (Java)
+  # ----------------------------------------
   soap-service:
     build:
-      context: ../Lol-Champs-Api
+      context: ./Lol-Champs-Api
       dockerfile: Dockerfile
     container_name: soap-service
     environment:
@@ -52,7 +58,28 @@ services:
       lolchamps-mysql:
         condition: service_healthy
 
-  # 4. REST API
+  # ----------------------------------------
+  # 4. API gRPC (Go)
+  # ----------------------------------------
+  grpc-server:
+    build:
+      context: ./LolEvokersGRPC 
+      dockerfile: Dockerfile
+    container_name: EvokersGRPC
+    ports:
+      - "50051:50051"
+    volumes:
+      # carpeta local 'data' en REST
+      - ./data_grpc:/data:Z 
+    environment:
+      - CGO_ENABLED=1
+    networks:
+      - champion-network
+    restart: always
+
+  # ----------------------------------------
+  # 5. API REST (Spring Boot)
+  # ----------------------------------------
   rest-service:
     build:
       context: .
@@ -64,6 +91,7 @@ services:
       - MYSQL_PASSWORD=password123
       - REDIS_HOST=redis
       - SOAP_URL=http://soap-service:8080/ws
+      - GRPC_ADDRESS=static://grpc-server:50051 
     ports:
       - "8081:8081"
     networks:
@@ -74,6 +102,8 @@ services:
       redis:
         condition: service_healthy
       soap-service:
+        condition: service_started
+      grpc-server: 
         condition: service_started
 
 networks:
