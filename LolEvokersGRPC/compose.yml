@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  grpc-server:
+    build: .
+    container_name: EvokersGRPC
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./data:/data:Z
+    environment:
+      - CGO_ENABLED=1
+    restart: always
