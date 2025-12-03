@@ -69,7 +69,6 @@ services:
     ports:
       - "50051:50051"
     volumes:
-      # carpeta local 'data' en REST
       - ./data_grpc:/data:Z 
     environment:
       - CGO_ENABLED=1
@@ -78,7 +77,62 @@ services:
     restart: always
 
   # ----------------------------------------
-  # 5. API REST (Spring Boot)
+  # 5. HYDRA & AUTH (CORREGIDO)
+  # ----------------------------------------
+  
+  hydra-postgres:
+    image: postgres:11.8
+    container_name: hydra-postgres
+    environment:
+      - POSTGRES_USER=hydra
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=hydra
+    networks:
+      - champion-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hydra"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MIGRACIÓN
+  hydra-migrate:
+    image: oryd/hydra:v1.10.6
+    container_name: hydra-migrate
+    command: migrate sql -e --yes
+    environment:
+      - DSN=postgres://hydra:secret@hydra-postgres:5432/hydra?sslmode=disable
+    networks:
+      - champion-network
+    depends_on:
+      hydra-postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # SERVIDOR HYDRA
+  hydra:
+    image: oryd/hydra:v1.10.6
+    container_name: hydra
+    command: serve all --dangerous-force-http
+    environment:
+      - DSN=postgres://hydra:secret@hydra-postgres:5432/hydra?sslmode=disable
+      - URLS_SELF_ISSUER=http://hydra:4444/
+      - URLS_CONSENT=http://127.0.0.1:9020/consent
+      - URLS_LOGIN=http://127.0.0.1:9020/login
+      - SECRETS_SYSTEM=this_is_my_super_secret_password_1234
+      - STRATEGIES_ACCESS_TOKEN=jwt
+    ports:
+      - "4444:4444" 
+      - "4445:4445" 
+    networks:
+      - champion-network
+    depends_on:
+      hydra-postgres:
+        condition: service_healthy
+    restart: on-failure:10
+
+  # ----------------------------------------
+  # 6. API REST (Spring Boot)
   # ----------------------------------------
   rest-service:
     build:
@@ -91,7 +145,11 @@ services:
       - MYSQL_PASSWORD=password123
       - REDIS_HOST=redis
       - SOAP_URL=http://soap-service:8080/ws
-      - GRPC_ADDRESS=static://grpc-server:50051 
+      - GRPC_ADDRESS=static://grpc-server:50051
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://hydra:4444/
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY_OAUTH2=DEBUG
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG
     ports:
       - "8081:8081"
     networks:
@@ -105,6 +163,9 @@ services:
         condition: service_started
       grpc-server: 
         condition: service_started
+      hydra:
+        condition: service_started
+    restart: on-failure:5
 
 networks:
   champion-network:
