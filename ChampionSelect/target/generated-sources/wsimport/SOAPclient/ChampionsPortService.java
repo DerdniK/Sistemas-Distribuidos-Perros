@@ -17,7 +17,7 @@ import jakarta.xml.ws.WebServiceFeature;
  * Generated source version: 3.0
  * 
  */
-@WebServiceClient(name = "ChampionsPortService", targetNamespace = "http://champs.com/lol_champs_api", wsdlLocation = "file:/C:/Users/adolt/OneDrive/Escritorio/Repositorios/Sistemas-Distribuidos-Perros/ChampionSelect/src/main/resources/wsdl/champions.wsdl")
+@WebServiceClient(name = "ChampionsPortService", targetNamespace = "http://champs.com/lol_champs_api", wsdlLocation = "file:/C:/Repositorios/Sistemas-Distribuidos-Perros/ChampionSelect/src/main/resources/wsdl/champions.wsdl")
 public class ChampionsPortService
     extends Service
 {
@@ -30,7 +30,7 @@ public class ChampionsPortService
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/C:/Users/adolt/OneDrive/Escritorio/Repositorios/Sistemas-Distribuidos-Perros/ChampionSelect/src/main/resources/wsdl/champions.wsdl");
+            url = new URL("file:/C:/Repositorios/Sistemas-Distribuidos-Perros/ChampionSelect/src/main/resources/wsdl/champions.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }

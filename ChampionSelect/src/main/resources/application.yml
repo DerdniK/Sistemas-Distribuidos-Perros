@@ -37,3 +37,9 @@ logging:
     org.springframework.web: INFO
     org.hibernate: INFO
     ChampionSelect: DEBUG
+
+grpc:
+  client:
+    evoker-service:
+      address: static://grpc-server:50051
+      negotiation-type: plaintext
