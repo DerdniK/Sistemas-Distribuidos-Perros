@@ -1,0 +1,39 @@
+// filepath: c:\Users\adolt\OneDrive\Escritorio\Repositorios\Sistemas-Distribuidos-Perros\ChampionSelect\src\main\resources\application.yml
+spring:
+  application:
+    name: champion-select-service
+
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/League_of_Legends_DB?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:password123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+      timeout: 5000
+      connect-timeout: 5000
+      client-type: lettuce
+
+server:
+  port: 8081
+
+champions:
+  soap:
+    service-url: ${SOAP_URL:http://localhost:8080/ws}
+
+logging:
+  level:
+    org.springframework.web: INFO
+    org.hibernate: INFO
+    ChampionSelect: DEBUG

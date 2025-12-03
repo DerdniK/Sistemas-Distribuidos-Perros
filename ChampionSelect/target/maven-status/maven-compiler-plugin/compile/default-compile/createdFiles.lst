@@ -1,0 +1,9 @@
+SOAPclient\GetChampionResponse.class
+SOAPclient\CreateChampionResponse.class
+SOAPclient\GetChampionRequest.class
+SOAPclient\ChampionsPortService.class
+SOAPclient\package-info.class
+SOAPclient\Champion.class
+SOAPclient\CreateChampionRequest.class
+SOAPclient\ObjectFactory.class
+SOAPclient\ChampionsPort.class
